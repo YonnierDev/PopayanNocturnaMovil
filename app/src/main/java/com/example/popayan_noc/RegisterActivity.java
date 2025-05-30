@@ -12,15 +12,20 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.snackbar.Snackbar;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.AuthFailureError;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.Calendar;
+import java.util.Map;
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText etName, etLastName, etBirthDate, etEmail, etPassword;
@@ -142,16 +147,25 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         RequestQueue queue = Volley.newRequestQueue(this);
+        // Log del JSON que se enviará
+        Log.d("REGISTER_BODY", body.toString());
+
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, REGISTER_URL, body,
                 response -> {
                     progressDialog.dismiss();
-                    Snackbar.make(btnRegister, "Registro exitoso. Revisa tu correo para validar tu cuenta.", Snackbar.LENGTH_LONG).show();
-                    btnRegister.postDelayed(() -> {
+                    String backendMsg = response.optString("mensaje", "Registro iniciado. Por favor, verifica tu correo electrónico.");
+                    String correoResp = response.optString("correo", body.optString("correo", ""));
+                    androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+                    builder.setTitle("Registro");
+                    builder.setMessage(backendMsg);
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("OK", (dialog, which) -> {
                         Intent intent = new Intent(this, ValidateAccountActivity.class);
-                        intent.putExtra("email", email);
+                        intent.putExtra("email", correoResp);
                         startActivity(intent);
                         finish();
-                    }, 1200);
+                    });
+                    builder.show();
                 },
                 error -> {
                     progressDialog.dismiss();
@@ -159,13 +173,31 @@ public class RegisterActivity extends AppCompatActivity {
                     if (error.networkResponse != null && error.networkResponse.data != null) {
                         try {
                             String errorMsg = new String(error.networkResponse.data);
+                            Log.e("REGISTER_ERROR", "Respuesta error: " + errorMsg); // Log de la respuesta de error
                             JSONObject errorObj = new JSONObject(errorMsg);
                             msg = errorObj.optString("mensaje", msg);
                         } catch (Exception ignored) {}
                     }
-                    Snackbar.make(btnRegister, msg, Snackbar.LENGTH_LONG).show();
-                });
+                    // Mostrar SIEMPRE el mensaje exacto del backend en un AlertDialog
+                    androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+                    builder.setTitle("Registro fallido");
+                    builder.setMessage(msg);
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("OK", null);
+                    builder.show();
+                }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=UTF-8");
+                return headers;
+            }
+        };
+        request.setRetryPolicy(new DefaultRetryPolicy(10000, 1, 1f));
+        request.setShouldCache(false);
         queue.add(request);
+
     }
 
     private void showDatePicker() {

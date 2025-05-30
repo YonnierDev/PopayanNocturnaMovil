@@ -11,6 +11,7 @@ public class Place {
     public String imagen;
     public boolean aprobacion;
     public Double rating; // Nuevo campo para el rating promedio
+    private String tipo; // <-- Nuevo campo para categoría/tipo
 
     // Constructor anterior (sin rating)
     public Place(int id, int categoriaid, int usuarioid, String nombre, String descripcion, String ubicacion, boolean estado, String imagen, boolean aprobacion) {
@@ -24,6 +25,7 @@ public class Place {
         this.imagen = imagen;
         this.aprobacion = aprobacion;
         this.rating = null;
+        this.tipo = null;
     }
 
     // Nuevo constructor con rating
@@ -38,6 +40,16 @@ public class Place {
         this.imagen = imagen;
         this.aprobacion = aprobacion;
         this.rating = rating;
+        this.tipo = null;
+    }
+
+    // Getter y Setter para tipo
+    public String getTipo() {
+        return tipo;
+    }
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }
+
 

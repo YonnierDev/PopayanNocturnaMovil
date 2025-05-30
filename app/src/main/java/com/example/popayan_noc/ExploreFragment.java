@@ -38,7 +38,7 @@ public class ExploreFragment extends Fragment {
     private CategoryAdapter categoryAdapter;
     private RecyclerView rvPlaces;
     private PlaceAdapter placeAdapter;
-    private List<CategoriaConLugares> categoriaList = new ArrayList<>();
+    // private List<CategoriaConLugares> categoriaList = new ArrayList<>(); // Eliminado: ya no existe CategoriaConLugares
     private List<Place> allPlaces = new ArrayList<>();
     private List<Place> filteredPlaces = new ArrayList<>();
     private int selectedCategoryIndex = 0;
@@ -133,36 +133,39 @@ public class ExploreFragment extends Fragment {
 
     private void filterPlacesByCategory(String tipoCategoria) {
         filteredPlaces.clear();
-        int idx = findCategoryIndexByTipo(tipoCategoria);
-        if (idx >= 0 && idx < categoriaList.size()) {
-            filteredPlaces.addAll(categoriaList.get(idx).lugares);
+        for (Place p : allPlaces) {
+            if (tipoCategoria.equals(p.getTipo())) filteredPlaces.add(p);
         }
         placeAdapter.notifyDataSetChanged();
-        
     }
 
 
 
     private int findCategoryIndexByTipo(String tipo) {
-        for (int i = 0; i < categoriaList.size(); i++) {
-            if (categoriaList.get(i).tipo.equalsIgnoreCase(tipo)) return i;
-        }
+        // Eliminado: búsqueda de índice de categoría
         return -1;
     }
 
     private void cargarCategoriasYlLugares() {
         String url = BASE_URL + "/usuarios/lista-categorias";
+        String token = AuthUtils.getToken(getContext());
+        if (token == null) {
+            android.util.Log.e("ExploreFragment", "Token de usuario no disponible. No se puede cargar categorías ni lugares.");
+            showShimmer(false);
+            filteredPlaces.clear();
+            placeAdapter.notifyDataSetChanged();
+            return;
+        }
+        allPlaces.clear(); // LIMPIA antes de llenar
         com.android.volley.toolbox.JsonArrayRequest request = new com.android.volley.toolbox.JsonArrayRequest(
                 com.android.volley.Request.Method.GET, url, null,
                 response -> {
-                    categoriaList.clear();
                     List<String> tipos = new ArrayList<>();
                     for (int i = 0; i < response.length(); i++) {
                         try {
                             org.json.JSONObject obj = response.getJSONObject(i);
                             String tipo = obj.optString("tipo", "");
                             org.json.JSONArray lugaresArr = obj.optJSONArray("lugares");
-                            List<Place> lugares = new ArrayList<>();
                             if (lugaresArr != null) {
                                 for (int j = 0; j < lugaresArr.length(); j++) {
                                     org.json.JSONObject l = lugaresArr.getJSONObject(j);
@@ -170,36 +173,43 @@ public class ExploreFragment extends Fragment {
                                     String descripcion = l.optString("descripcion", "");
                                     String ubicacion = l.optString("ubicacion", "");
                                     String imagen = l.optString("imagen", "");
-                                    lugares.add(new Place(0, 0, 0, nombre, descripcion, ubicacion, true, imagen, true));
+                                    Place place = new Place(0, 0, 0, nombre, descripcion, ubicacion, true, imagen, true);
+                                    place.setTipo(tipo); // NECESARIO: para filtrar por tipo
+                                    allPlaces.add(place);
                                 }
                             }
-                            categoriaList.add(new CategoriaConLugares(tipo, lugares));
                             tipos.add(tipo);
                         } catch (org.json.JSONException e) { e.printStackTrace(); }
                     }
-                    // Actualizar adapter de categorías usando el método público
                     List<Category> categorias = new ArrayList<>();
                     for (String t : tipos) categorias.add(new Category(0, t, "", "", true));
                     categoryAdapter.setCategories(categorias);
-                    // Mostrar lugares de la primera categoría por defecto
-                    if (!categoriaList.isEmpty()) {
-                        filteredPlaces.clear();
-                        filteredPlaces.addAll(categoriaList.get(0).lugares);
-                        placeAdapter.notifyDataSetChanged();
-                        animatePlacesFadeIn();
+                    // Al cargar, muestra los lugares de la primera categoría
+                    filteredPlaces.clear();
+                    if (!tipos.isEmpty()) {
+                        String primerTipo = tipos.get(0);
+                        for (Place p : allPlaces) {
+                            if (primerTipo.equals(p.getTipo())) filteredPlaces.add(p);
+                        }
                     }
+                    placeAdapter.notifyDataSetChanged();
                     showShimmer(false);
                 },
                 error -> {
                     android.util.Log.e("ExploreFragment", "Error cargando categorías: " + error.toString());
                     android.widget.Toast.makeText(getContext(), "Error de conexión al cargar categorías", android.widget.Toast.LENGTH_LONG).show();
-                    // Si falla la API, muestra empty state visual
-                    categoriaList.clear();
                     filteredPlaces.clear();
                     placeAdapter.notifyDataSetChanged();
                     showShimmer(false);
                 }
-        );
+        ) {
+            @Override
+            public java.util.Map<String, String> getHeaders() throws com.android.volley.AuthFailureError {
+                java.util.Map<String, String> headers = new java.util.HashMap<>();
+                headers.put("Authorization", "Bearer " + token);
+                return headers;
+            }
+        };
         queue.add(request);
     }
 

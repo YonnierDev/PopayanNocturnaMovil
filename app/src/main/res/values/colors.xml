@@ -6,4 +6,6 @@
     <color name="gray">#FF888888</color>
     <color name="gray_300">#E0E0E0</color>
     <color name="primary">#1976D2</color>
+    <color name="red">#F44336</color>
+    <color name="dark_blue">#182848</color>
 </resources>
