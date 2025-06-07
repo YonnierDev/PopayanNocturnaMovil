@@ -36,6 +36,9 @@
         <activity
             android:name=".ValidateAccountActivity"
             android:exported="true" />
+        <activity
+            android:name=".EventosProximosActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

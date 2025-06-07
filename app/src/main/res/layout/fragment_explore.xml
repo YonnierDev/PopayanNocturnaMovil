@@ -102,6 +102,52 @@
         android:overScrollMode="never"
         android:orientation="horizontal"/>
 
+    <!-- Tarjeta para acceder a Eventos Próximos -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardEventosProximos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="6dp"
+        android:clickable="true"
+        android:focusable="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="18dp"
+            android:gravity="center_vertical">
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_event"
+                android:tint="@color/primaryColor"
+                android:layout_marginEnd="14dp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Eventos Próximos"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:textColor="@color/primaryTextColor"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="¡Descubre lo que viene en la ciudad!"
+                    android:textSize="14sp"
+                    android:textColor="@color/secondaryTextColor"/>
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <!-- Shimmer Loader para lista de lugares -->
     <include
         layout="@layout/shimmer_placeholder"

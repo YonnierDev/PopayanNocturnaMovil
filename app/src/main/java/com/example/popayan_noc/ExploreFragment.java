@@ -38,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import android.content.Intent;
+
 public class ExploreFragment extends Fragment {
     private LinearLayout searchBarContainer;
     private EditText etSearch;
@@ -136,6 +138,13 @@ public class ExploreFragment extends Fragment {
                 hideKeyboard();
             }
             return false;
+        });
+
+        // Acción para la tarjeta de Eventos Próximos
+        CardView cardEventosProximos = view.findViewById(R.id.cardEventosProximos);
+        cardEventosProximos.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), EventosProximosActivity.class);
+            startActivity(intent);
         });
 
         return view;
