@@ -3,6 +3,7 @@ package com.example.popayan_noc;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.osmdroid.views.MapView;
 import org.osmdroid.api.IMapController;
@@ -21,14 +22,21 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.android.volley.Request;
+import com.example.popayan_noc.model.Lugar;
+import com.example.popayan_noc.network.ApiService;
+import com.example.popayan_noc.network.RetrofitClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+// Volley specific imports for cargarEventos (if still used there)
+import com.android.volley.Request; // Importación añadida para Volley Request
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONException;
+import org.json.JSONArray; // For cargarEventos
+import org.json.JSONObject; // For cargarEventos
+// import org.json.JSONException; // Might not be needed if only optJSONArray is used carefully
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +49,9 @@ public class HomeFragment extends Fragment {
     private RecyclerView rvEvents;
     private EventAdapter eventAdapter;
     private List<org.json.JSONArray> eventList = new ArrayList<>();
-    private RequestQueue queue;
-    private static final String BASE_URL = "https://popnocturna.vercel.app/api";
+    private RequestQueue queue; // Kept for cargarEventos
+    private static final String BASE_URL = "https://popnocturna.vercel.app/api"; // Restaurada para cargarEventos
+
     private TextView tvLugares;
     private TextView tvEventos;
 
@@ -50,19 +59,17 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        // Inicializa queue si no existe
-        if (queue == null) queue = com.android.volley.toolbox.Volley.newRequestQueue(requireContext());
+        // queue is initialized before cargarEventos if still needed, or can be initialized in onCreateView if cargarEventos is called from here
+        if (queue == null) queue = Volley.newRequestQueue(requireContext()); // Ensure queue is initialized for cargarEventos
         rvFeaturedPlaces = view.findViewById(R.id.rvFeaturedPlaces);
         // Asegura el layout horizontal para el carrusel
         if (rvFeaturedPlaces != null) {
             rvFeaturedPlaces.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         }
         rvEvents = view.findViewById(R.id.rvEvents);
-        queue = Volley.newRequestQueue(requireContext());
-
         // Apartado de Eventos
         rvEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        cargarLugares(view);
+        cargarLugares(view); // Pass view to access UI elements like tvNoLugares
         cargarEventos();
 
         // Estadísticas
@@ -90,63 +97,64 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    // --- Cargar lugares reales ---
+    // --- Cargar lugares reales con Retrofit ---
     private void cargarLugares(View view) {
-        String url = BASE_URL + "/lugares";
         String token = AuthUtils.getToken(getContext());
-        // rvFeaturedPlaces ya es variable de clase, no la redefinas aquí
 
         TextView tvNoLugares = view.findViewById(R.id.tvNoLugares);
         ImageView imgBannerLugares = view.findViewById(R.id.imgBannerLugares);
-        if (token == null) {
+
+        if (token == null || token.isEmpty()) {
             if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
             if (imgBannerLugares != null) imgBannerLugares.setVisibility(View.VISIBLE);
             if (tvNoLugares != null) tvNoLugares.setVisibility(View.VISIBLE);
             android.util.Log.e("HomeFragment", "Token de usuario no disponible. No se puede cargar lugares.");
             if (tvLugares != null) tvLugares.setText("0");
-            android.widget.Toast.makeText(getContext(), "Token no disponible, no se cargan lugares", android.widget.Toast.LENGTH_LONG).show();
+            if (getContext() != null) Toast.makeText(getContext(), "Token no disponible, no se cargan lugares", Toast.LENGTH_LONG).show();
             return;
         }
-        JsonArrayRequest request = new JsonArrayRequest(
-            Request.Method.GET, url, null,
-            response -> {
-                android.util.Log.d("HomeFragment", "Respuesta lugares: " + response);
-                if (response != null && response.length() > 0) {
-                    List<Place> places = parsePlacesFromJson(response);
-                    PlaceAdapter placeAdapter = new PlaceAdapter(getContext(), places);
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        Call<List<Lugar>> call = apiService.listarLugares("Bearer " + token);
+
+        call.enqueue(new Callback<List<Lugar>>() {
+            @Override
+            public void onResponse(Call<List<Lugar>> call, Response<List<Lugar>> response) {
+                if (!isAdded() || getContext() == null) return; // Fragment not attached or context is null
+
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    List<Lugar> lugares = response.body();
+                    // Asegúrate que PlaceAdapter ahora acepta List<Lugar>
+                    PlaceAdapter placeAdapter = new PlaceAdapter(getContext(), lugares); 
                     if (rvFeaturedPlaces != null) {
                         rvFeaturedPlaces.setAdapter(placeAdapter);
                         rvFeaturedPlaces.setVisibility(View.VISIBLE);
                     }
                     if (imgBannerLugares != null) imgBannerLugares.setVisibility(View.GONE);
                     if (tvNoLugares != null) tvNoLugares.setVisibility(View.GONE);
-                    if (tvLugares != null) tvLugares.setText(String.valueOf(places.size()));
+                    if (tvLugares != null) tvLugares.setText(String.valueOf(lugares.size()));
                 } else {
-                    android.util.Log.w("HomeFragment", "No hay lugares disponibles. Respuesta JSON: " + response);
-                    android.widget.Toast.makeText(getContext(), "No hay lugares disponibles. Respuesta: " + response, android.widget.Toast.LENGTH_LONG).show();
+                    android.util.Log.w("HomeFragment", "No hay lugares disponibles o error en la respuesta.");
+                    if (getContext() != null) Toast.makeText(getContext(), "No hay lugares destacados disponibles.", Toast.LENGTH_LONG).show();
                     if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
                     if (imgBannerLugares != null) imgBannerLugares.setVisibility(View.VISIBLE);
-                    if (tvNoLugares != null) tvNoLugares.setVisibility(View.GONE);
+                    if (tvNoLugares != null) tvNoLugares.setVisibility(View.VISIBLE); // Mostrar mensaje si no hay lugares
                     if (tvLugares != null) tvLugares.setText("0");
                 }
-            },
-            error -> {
-                android.util.Log.e("HomeFragment", "Error cargando lugares: " + error.toString());
-                android.widget.Toast.makeText(getContext(), "Error cargando lugares: " + error.toString(), android.widget.Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(Call<List<Lugar>> call, Throwable t) {
+                if (!isAdded() || getContext() == null) return; // Fragment not attached or context is null
+
+                android.util.Log.e("HomeFragment", "Error cargando lugares: " + t.getMessage());
+                if (getContext() != null) Toast.makeText(getContext(), "Error cargando lugares: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
                 if (imgBannerLugares != null) imgBannerLugares.setVisibility(View.VISIBLE);
                 if (tvNoLugares != null) tvNoLugares.setVisibility(View.VISIBLE);
                 if (tvLugares != null) tvLugares.setText("0");
             }
-        ) {
-            @Override
-            public java.util.Map<String, String> getHeaders() throws com.android.volley.AuthFailureError {
-                java.util.Map<String, String> headers = new java.util.HashMap<>();
-                headers.put("Authorization", "Bearer " + token);
-                return headers;
-            }
-        };
-        queue.add(request);
+        });
     }
 
     // --- Cargar eventos reales ---
@@ -207,34 +215,5 @@ public class HomeFragment extends Fragment {
         builder.setView(dialogView);
         builder.setNegativeButton("Cerrar", (d, w) -> d.dismiss());
         builder.show();
-    }
-
-    // Método para convertir JSONArray a List<Place>
-    private List<Place> parsePlacesFromJson(JSONArray response) {
-        List<Place> places = new ArrayList<>();
-        for (int i = 0; i < response.length(); i++) {
-            try {
-                JSONObject obj = response.getJSONObject(i);
-                Place place = new Place(
-                    obj.getInt("id"),
-                    obj.getInt("categoriaid"),
-                    obj.getInt("usuarioid"),
-                    obj.getString("nombre"),
-                    obj.getString("descripcion"),
-                    obj.getString("ubicacion"),
-                    obj.getBoolean("estado"),
-                    obj.getString("imagen"),
-                    obj.getBoolean("aprobacion"),
-                    obj.has("rating") && !obj.isNull("rating") ? obj.getDouble("rating") : null
-                );
-                if (obj.has("tipo") && !obj.isNull("tipo")) {
-                    place.setTipo(obj.getString("tipo"));
-                }
-                places.add(place);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-        return places;
     }
 }

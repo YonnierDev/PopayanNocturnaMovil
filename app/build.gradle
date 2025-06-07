@@ -18,7 +18,16 @@ android {
     }
 }
 
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
 dependencies {
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+    implementation files('libs/dotsindicator-4.3-release.aar')
+
     implementation 'org.osmdroid:osmdroid-android:6.1.16'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
@@ -26,5 +35,12 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
     implementation 'com.android.volley:volley:1.2.1'
+    // Retrofit y Gson
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // OkHttp Logging Interceptor (para ver logs de las peticiones y respuestas, muy útil para debug)
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
+
     // Otras dependencias aquí...
 }

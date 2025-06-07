@@ -12,6 +12,17 @@ import android.animation.ValueAnimator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.ScaleAnimation;
 import com.facebook.shimmer.ShimmerFrameLayout; // Shimmer loader
+import com.example.popayan_noc.model.Lugar;
+import com.example.popayan_noc.model.Categoria; // Assuming this is the model for Lugar's category
+import com.example.popayan_noc.network.ApiService;
+import com.example.popayan_noc.network.RetrofitClient;
+import java.util.HashSet;
+import java.util.Set;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import android.util.Log;
+import android.widget.Toast; // Added for error messages
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -38,12 +49,10 @@ public class ExploreFragment extends Fragment {
     private CategoryAdapter categoryAdapter;
     private RecyclerView rvPlaces;
     private PlaceAdapter placeAdapter;
-    // private List<CategoriaConLugares> categoriaList = new ArrayList<>(); // Eliminado: ya no existe CategoriaConLugares
-    private List<Place> allPlaces = new ArrayList<>();
-    private List<Place> filteredPlaces = new ArrayList<>();
-    private int selectedCategoryIndex = 0;
-    private com.android.volley.RequestQueue queue;
-    private static final String BASE_URL = "https://popnocturna.vercel.app/api";
+    private List<Lugar> allPlaces = new ArrayList<>();
+    private List<Lugar> filteredPlaces = new ArrayList<>();
+    // private int selectedCategoryIndex = 0; // No longer explicitly used for filtering logic trigger
+    // Volley queue and BASE_URL removed as RetrofitClient handles this.
     private List<String> allSuggestions = Arrays.asList(
             "Restaurantes", "Naturaleza", "Eventos hoy", "Cultura", "Bares", "Museos", "Miradores", "Cafés", "Fiesta", "Parques"
     );
@@ -74,8 +83,11 @@ public class ExploreFragment extends Fragment {
         rvSuggestions.setAdapter(suggestionAdapter);
 
         // Setup horizontal categories carousel
-        categoryAdapter = new CategoryAdapter(getContext(), new ArrayList<>(), category -> {
-            animateCategoryClick(rvCategories.findViewHolderForAdapterPosition(findCategoryIndexByTipo(category.tipo)));
+        categoryAdapter = new CategoryAdapter(getContext(), new ArrayList<>(), (category, position) -> {
+            RecyclerView.ViewHolder viewHolder = rvCategories.findViewHolderForAdapterPosition(position);
+            if (viewHolder != null) {
+                animateCategoryClick(viewHolder);
+            }
             android.widget.Toast.makeText(getContext(), "Categoría: " + category.tipo, android.widget.Toast.LENGTH_SHORT).show();
             filterPlacesByCategory(category.tipo);
         });
@@ -84,15 +96,13 @@ public class ExploreFragment extends Fragment {
         // Siempre carga categorías locales si la lista está vacía
         categoryAdapter.setCategories(null); // fuerza categorías locales por defecto
 
-        // Inicializa Volley
-        queue = com.android.volley.toolbox.Volley.newRequestQueue(requireContext());
-        // Adapter de lugares
+        // Adapter de lugares (now expects List<Lugar>)
         placeAdapter = new PlaceAdapter(getContext(), filteredPlaces);
         rvPlaces.setLayoutManager(new LinearLayoutManager(getContext()));
         rvPlaces.setAdapter(placeAdapter);
-        // Carga categorías y lugares desde el backend
-        showShimmer(true);
-        cargarCategoriasYlLugares();
+
+        // Carga categorías y lugares desde el backend usando Retrofit
+        fetchPlacesAndCategories();
         
 
         // Touch on search bar container shows search
@@ -133,84 +143,98 @@ public class ExploreFragment extends Fragment {
 
     private void filterPlacesByCategory(String tipoCategoria) {
         filteredPlaces.clear();
-        for (Place p : allPlaces) {
-            if (tipoCategoria.equals(p.getTipo())) filteredPlaces.add(p);
+        if (tipoCategoria == null || tipoCategoria.isEmpty()) { // Show all if category is null/empty
+            if (allPlaces != null) filteredPlaces.addAll(allPlaces);
+        } else {
+            if (allPlaces != null) {
+                for (Lugar p : allPlaces) {
+                    if (p.getCategoria() != null && tipoCategoria.equals(p.getCategoria().getTipo())) {
+                        filteredPlaces.add(p);
+                    }
+                }
+            }
         }
-        placeAdapter.notifyDataSetChanged();
+        if (placeAdapter != null) placeAdapter.notifyDataSetChanged();
+        if (filteredPlaces.isEmpty() && tipoCategoria != null && !tipoCategoria.isEmpty()) {
+             Toast.makeText(getContext(), "No hay lugares en la categoría: " + tipoCategoria, Toast.LENGTH_SHORT).show();
+        }
     }
 
 
 
-    private int findCategoryIndexByTipo(String tipo) {
-        // Eliminado: búsqueda de índice de categoría
-        return -1;
-    }
+    // private int findCategoryIndexByTipo(String tipo) { ... } // Method removed as it's no longer directly used for core filtering logic.
 
-    private void cargarCategoriasYlLugares() {
-        String url = BASE_URL + "/usuarios/lista-categorias";
+    private void fetchPlacesAndCategories() {
+        if (shimmerFrameLayout != null) showShimmer(true);
         String token = AuthUtils.getToken(getContext());
-        if (token == null) {
-            android.util.Log.e("ExploreFragment", "Token de usuario no disponible. No se puede cargar categorías ni lugares.");
-            showShimmer(false);
-            filteredPlaces.clear();
-            placeAdapter.notifyDataSetChanged();
+
+        if (token == null || token.isEmpty()) {
+            Log.e("ExploreFragment", "Token de usuario no disponible.");
+            if (getContext() != null) Toast.makeText(getContext(), "Error de autenticación. Intente iniciar sesión de nuevo.", Toast.LENGTH_LONG).show();
+            if (shimmerFrameLayout != null) showShimmer(false);
+            // Consider navigating to login screen
             return;
         }
-        allPlaces.clear(); // LIMPIA antes de llenar
-        com.android.volley.toolbox.JsonArrayRequest request = new com.android.volley.toolbox.JsonArrayRequest(
-                com.android.volley.Request.Method.GET, url, null,
-                response -> {
-                    List<String> tipos = new ArrayList<>();
-                    for (int i = 0; i < response.length(); i++) {
-                        try {
-                            org.json.JSONObject obj = response.getJSONObject(i);
-                            String tipo = obj.optString("tipo", "");
-                            org.json.JSONArray lugaresArr = obj.optJSONArray("lugares");
-                            if (lugaresArr != null) {
-                                for (int j = 0; j < lugaresArr.length(); j++) {
-                                    org.json.JSONObject l = lugaresArr.getJSONObject(j);
-                                    String nombre = l.optString("nombre", "");
-                                    String descripcion = l.optString("descripcion", "");
-                                    String ubicacion = l.optString("ubicacion", "");
-                                    String imagen = l.optString("imagen", "");
-                                    Place place = new Place(0, 0, 0, nombre, descripcion, ubicacion, true, imagen, true);
-                                    place.setTipo(tipo); // NECESARIO: para filtrar por tipo
-                                    allPlaces.add(place);
-                                }
+
+        ApiService apiService = RetrofitClient.getClient().create(ApiService.class);
+        Call<List<Lugar>> call = apiService.listarLugares("Bearer " + token);
+
+        call.enqueue(new Callback<List<Lugar>>() {
+            @Override
+            public void onResponse(Call<List<Lugar>> call, Response<List<Lugar>> response) {
+                if (shimmerFrameLayout != null) showShimmer(false);
+                if (!isAdded() || getContext() == null) return; // Fragment not attached or context is null
+
+                if (response.isSuccessful() && response.body() != null) {
+                    allPlaces.clear();
+                    allPlaces.addAll(response.body());
+
+                    Set<String> uniqueCategoryTipos = new HashSet<>();
+                    List<com.example.popayan_noc.Category> categoriesForAdapter = new ArrayList<>(); // Use the fully qualified name or ensure Category is imported
+                    for (Lugar lugar : allPlaces) {
+                        if (lugar.getCategoria() != null && lugar.getCategoria().getTipo() != null) {
+                            if (uniqueCategoryTipos.add(lugar.getCategoria().getTipo())) {
+                                // Assuming com.example.popayan_noc.Category is the correct class for CategoryAdapter
+                                categoriesForAdapter.add(new com.example.popayan_noc.Category(0, lugar.getCategoria().getTipo(), "", "", false));
                             }
-                            tipos.add(tipo);
-                        } catch (org.json.JSONException e) { e.printStackTrace(); }
-                    }
-                    List<Category> categorias = new ArrayList<>();
-                    for (String t : tipos) categorias.add(new Category(0, t, "", "", true));
-                    categoryAdapter.setCategories(categorias);
-                    // Al cargar, muestra los lugares de la primera categoría
-                    filteredPlaces.clear();
-                    if (!tipos.isEmpty()) {
-                        String primerTipo = tipos.get(0);
-                        for (Place p : allPlaces) {
-                            if (primerTipo.equals(p.getTipo())) filteredPlaces.add(p);
                         }
                     }
-                    placeAdapter.notifyDataSetChanged();
-                    showShimmer(false);
-                },
-                error -> {
-                    android.util.Log.e("ExploreFragment", "Error cargando categorías: " + error.toString());
-                    android.widget.Toast.makeText(getContext(), "Error de conexión al cargar categorías", android.widget.Toast.LENGTH_LONG).show();
+                    if (categoryAdapter != null) {
+                        categoryAdapter.setCategories(categoriesForAdapter);
+                    }
+
                     filteredPlaces.clear();
-                    placeAdapter.notifyDataSetChanged();
-                    showShimmer(false);
+                    if (!categoriesForAdapter.isEmpty() && !allPlaces.isEmpty()) {
+                        filterPlacesByCategory(categoriesForAdapter.get(0).tipo); // Filter by the first category
+                    } else {
+                        filteredPlaces.addAll(allPlaces); // Show all if no categories or no specific filter
+                    }
+                    if (placeAdapter != null) placeAdapter.notifyDataSetChanged();
+
+                    if (allPlaces.isEmpty()) {
+                        Toast.makeText(getContext(), "No hay lugares disponibles.", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e("ExploreFragment", "Error al cargar lugares: " + response.code() + " - " + response.message());
+                    Toast.makeText(getContext(), "Error al cargar lugares. Código: " + response.code(), Toast.LENGTH_LONG).show();
+                    if (allPlaces != null) allPlaces.clear();
+                    if (filteredPlaces != null) filteredPlaces.clear();
+                    if (placeAdapter != null) placeAdapter.notifyDataSetChanged();
                 }
-        ) {
-            @Override
-            public java.util.Map<String, String> getHeaders() throws com.android.volley.AuthFailureError {
-                java.util.Map<String, String> headers = new java.util.HashMap<>();
-                headers.put("Authorization", "Bearer " + token);
-                return headers;
             }
-        };
-        queue.add(request);
+
+            @Override
+            public void onFailure(Call<List<Lugar>> call, Throwable t) {
+                if (shimmerFrameLayout != null) showShimmer(false);
+                if (!isAdded() || getContext() == null) return; // Fragment not attached or context is null
+
+                Log.e("ExploreFragment", "Fallo en la conexión al cargar lugares: " + t.getMessage(), t);
+                Toast.makeText(getContext(), "Fallo en la conexión: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                if (allPlaces != null) allPlaces.clear();
+                if (filteredPlaces != null) filteredPlaces.clear();
+                if (placeAdapter != null) placeAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void showShimmer(boolean show) {

@@ -8,4 +8,6 @@
     <color name="primary">#1976D2</color>
     <color name="red">#F44336</color>
     <color name="dark_blue">#182848</color>
+    <color name="dots_indicator_dot_color">#CCCCCC</color>
+    <color name="dots_indicator_selected_dot_color">#3F51B5</color>
 </resources>

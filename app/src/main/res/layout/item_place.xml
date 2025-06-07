@@ -79,20 +79,6 @@
                 android:textSize="14sp"
                 android:layout_marginStart="7dp"/>
         </LinearLayout>
-        <!-- Etiqueta favorita -->
-        <TextView
-            android:id="@+id/tvTag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Favorito entre huéspedes"
-            android:textSize="13sp"
-            android:textColor="#FFD700"
-            android:background="@drawable/bg_tag_favorite"
-            android:padding="4dp"
-            android:layout_marginTop="-22dp"
-            android:layout_marginStart="12dp"
-            android:layout_gravity="start"
-            android:visibility="gone"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -100,15 +86,31 @@
             android:orientation="vertical"
             android:padding="18dp">
 
-            <TextView
-                android:id="@+id/tvPlaceName"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Nombre del lugar"
-                android:textSize="20sp"
-                android:textColor="#23233a"
-                android:textStyle="bold"
-                android:layout_marginBottom="2dp"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="2dp">
+
+                <TextView
+                    android:id="@+id/tvPlaceName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Nombre del lugar"
+                    android:textSize="20sp"
+                    android:textColor="#23233A"
+                    android:textStyle="bold"/>
+
+                <View
+                    android:id="@+id/viewPlaceStatusIndicator"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@android:color/darker_gray" 
+                    android:visibility="gone"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvPlaceLocation"
@@ -128,6 +130,47 @@
                 android:textSize="13sp"
                 android:textColor="#888"
                 android:layout_marginTop="2dp"/>
+
+            <LinearLayout
+                android:id="@+id/llActionIcons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:gravity="start">
+
+                <ImageView
+                    android:id="@+id/ivGalleryIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_gallery" 
+                    android:contentDescription="Ver galería"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"
+                    android:layout_marginEnd="16dp"/>
+
+                <ImageView
+                    android:id="@+id/ivMenuIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_agenda" 
+                    android:contentDescription="Ver menú"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"
+                    android:layout_marginEnd="16dp"/>
+
+                <ImageView
+                    android:id="@+id/ivMapIcon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_dialog_map" 
+                    android:contentDescription="Ver en mapa"
+                    android:padding="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:visibility="gone"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

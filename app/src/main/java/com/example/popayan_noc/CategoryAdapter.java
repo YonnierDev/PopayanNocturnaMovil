@@ -21,7 +21,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     private OnCategoryClickListener listener;
 
     public interface OnCategoryClickListener {
-        void onCategoryClick(Category category);
+        void onCategoryClick(Category category, int position);
     }
 
     public CategoryAdapter(Context context, List<Category> categoryList, OnCategoryClickListener listener) {
@@ -89,7 +89,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
         holder.tvCategoryName.setVisibility(View.VISIBLE);
         holder.tvCategoryName.setTextColor(Color.parseColor("#F6F6F6"));
         holder.tvCategoryName.setGravity(Gravity.CENTER);
-        holder.itemView.setOnClickListener(v -> listener.onCategoryClick(category));
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onCategoryClick(category, holder.getAdapterPosition());
+            }
+        });
     }
 
     // Capitaliza la primera letra y pone el resto en minúscula
