@@ -11,6 +11,8 @@ public class Lugar implements Parcelable {
     private String descripcion;
     private String ubicacion;
     private String imagen; // URL de la imagen principal
+    private String cartaPdf;
+
 
     @SerializedName("fotos_lugar")
     private List<String> fotosLugar;
