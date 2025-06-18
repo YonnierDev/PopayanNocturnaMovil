@@ -1,9 +1,11 @@
 package com.example.popayan_noc.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-public class Lugar {
+public class Lugar implements Parcelable {
     private int id;
     private String nombre;
     private String descripcion;
@@ -29,6 +31,51 @@ public class Lugar {
     // Constructor vacío (necesario para algunas librerías de deserialización)
     public Lugar() {
     }
+
+    // Constructor para Parcelable
+    protected Lugar(Parcel in) {
+        id = in.readInt();
+        nombre = in.readString();
+        descripcion = in.readString();
+        ubicacion = in.readString();
+        imagen = in.readString();
+        fotosLugar = in.createStringArrayList();
+        categoriaId = in.readInt();
+        estado = in.readByte() != 0;
+        createdAt = in.readString();
+        updatedAt = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(nombre);
+        dest.writeString(descripcion);
+        dest.writeString(ubicacion);
+        dest.writeString(imagen);
+        dest.writeStringList(fotosLugar);
+        dest.writeInt(categoriaId);
+        dest.writeByte((byte) (estado ? 1 : 0));
+        dest.writeString(createdAt);
+        dest.writeString(updatedAt);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Lugar> CREATOR = new Creator<Lugar>() {
+        @Override
+        public Lugar createFromParcel(Parcel in) {
+            return new Lugar(in);
+        }
+
+        @Override
+        public Lugar[] newArray(int size) {
+            return new Lugar[size];
+        }
+    };
 
     // Getters y Setters
     public int getId() {

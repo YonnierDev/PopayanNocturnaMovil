@@ -33,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btnRegister;
     private TextView tvGoLogin;
     private ProgressDialog progressDialog;
-    private static final String REGISTER_URL = "https://popnocturna.vercel.app/api/registrar";
+    private static final String REGISTER_URL = "https://popnocturna.vercel.app/api/registrar-usuario";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,19 +153,35 @@ public class RegisterActivity extends AppCompatActivity {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, REGISTER_URL, body,
                 response -> {
                     progressDialog.dismiss();
-                    String backendMsg = response.optString("mensaje", "Registro iniciado. Por favor, verifica tu correo electrónico.");
-                    String correoResp = response.optString("correo", body.optString("correo", ""));
-                    androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
-                    builder.setTitle("Registro");
-                    builder.setMessage(backendMsg);
-                    builder.setCancelable(false);
-                    builder.setPositiveButton("OK", (dialog, which) -> {
-                        Intent intent = new Intent(this, ValidateAccountActivity.class);
-                        intent.putExtra("email", correoResp);
-                        startActivity(intent);
-                        finish();
-                    });
-                    builder.show();
+                    String codigo = response.optString("codigo", "");
+                    if ("REGISTRO_EXITOSO".equals(codigo)) {
+                        String backendMsg = response.optString("mensaje", "Registro exitoso");
+                        JSONObject usuario = response.optJSONObject("usuario");
+                        String correoResp = usuario != null ? usuario.optString("correo", "") : "";
+                        
+                        // Guardar el token y el usuario
+                        AuthUtils.saveToken(this, response.optString("token", ""));
+                        AuthUtils.saveUser(this, usuario.toString());
+                        
+                        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+                        builder.setTitle("Registro exitoso");
+                        builder.setMessage(backendMsg);
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("OK", (dialog, which) -> {
+                            Intent intent = new Intent(this, LoginActivity.class);
+                            startActivity(intent);
+                            finish();
+                        });
+                        builder.show();
+                    } else {
+                        String msg = response.optString("mensaje", "Error desconocido");
+                        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+                        builder.setTitle("Error");
+                        builder.setMessage(msg);
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("OK", null);
+                        builder.show();
+                    }
                 },
                 error -> {
                     progressDialog.dismiss();
@@ -173,12 +189,30 @@ public class RegisterActivity extends AppCompatActivity {
                     if (error.networkResponse != null && error.networkResponse.data != null) {
                         try {
                             String errorMsg = new String(error.networkResponse.data);
-                            Log.e("REGISTER_ERROR", "Respuesta error: " + errorMsg); // Log de la respuesta de error
+                            Log.e("REGISTER_ERROR", "Respuesta error: " + errorMsg);
                             JSONObject errorObj = new JSONObject(errorMsg);
-                            msg = errorObj.optString("mensaje", msg);
-                        } catch (Exception ignored) {}
+                            String codigo = errorObj.optString("codigo", "ERROR_DESCONOCIDO");
+
+                            switch (codigo) {
+                                case "CUERPO_VACIO":
+                                    msg = "Los datos del formulario están incompletos";
+                                    break;
+                                case "DATOS_INCOMPLETOS":
+                                    msg = "Correo y contraseña son obligatorios";
+                                    break;
+                                case "CORREO_DUPLICADO":
+                                    msg = "Este correo ya está registrado";
+                                    break;
+                                case "ERROR_INTERNO":
+                                    msg = "Error interno del servidor. Por favor, intenta nuevamente";
+                                    break;
+                                default:
+                                    msg = errorObj.optString("mensaje", msg);
+                            }
+                        } catch (Exception e) {
+                            Log.e("REGISTER_ERROR", "Error al procesar respuesta: " + e.getMessage());
+                        }
                     }
-                    // Mostrar SIEMPRE el mensaje exacto del backend en un AlertDialog
                     androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
                     builder.setTitle("Registro fallido");
                     builder.setMessage(msg);

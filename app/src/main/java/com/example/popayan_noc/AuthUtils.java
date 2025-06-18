@@ -30,4 +30,14 @@ public class AuthUtils {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit().clear().apply();
     }
+
+    public static void saveToken(Context context, String token) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(TOKEN_KEY, token).apply();
+    }
+
+    public static void saveUser(Context context, String userJson) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        prefs.edit().putString(USER_KEY, userJson).apply();
+    }
 }
