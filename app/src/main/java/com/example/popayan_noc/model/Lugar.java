@@ -20,8 +20,6 @@ public class Lugar implements Parcelable {
     @SerializedName("categoriaid")
     private int categoriaId;
 
-    @SerializedName("carta_pdf")
-    private String cartaPdf;
 
     @SerializedName("estado")
     private boolean estado;
