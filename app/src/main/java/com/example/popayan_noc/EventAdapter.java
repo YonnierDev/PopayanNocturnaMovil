@@ -235,7 +235,7 @@ android.util.Log.d("COMENTARIO_DEBUG", "eventId extraído: " + eventId);
                 args.putInt("eventoid", eventId);
                 fragment.setArguments(args);
                 fm.beginTransaction()
-                        .replace(R.id.main, fragment)
+                        .replace(R.id.fragment_container, fragment)
                         .addToBackStack(null)
                         .commit();
             } else {

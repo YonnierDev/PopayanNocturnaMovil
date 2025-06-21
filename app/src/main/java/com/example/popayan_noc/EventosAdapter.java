@@ -121,21 +121,24 @@ public class EventosAdapter extends RecyclerView.Adapter<EventosAdapter.EventoVi
 
         // --- Botón Comentar ---
         holder.btnComentar.setOnClickListener(v -> {
-            if (context instanceof androidx.fragment.app.FragmentActivity) {
-                androidx.fragment.app.FragmentActivity activity = (androidx.fragment.app.FragmentActivity) context;
-                androidx.fragment.app.FragmentManager fm = activity.getSupportFragmentManager();
-                androidx.fragment.app.Fragment fragment = new com.example.popayan_noc.WriteReviewFragment();
-                android.os.Bundle args = new android.os.Bundle();
-                args.putInt("eventoid", eventId);
-                fragment.setArguments(args);
-                fm.beginTransaction()
-                        .replace(R.id.main, fragment)
-                        .addToBackStack(null)
-                        .commit();
-            } else {
-                android.widget.Toast.makeText(context, "No se pudo abrir el formulario de comentario", android.widget.Toast.LENGTH_SHORT).show();
-            }
-        });
+    if (context instanceof com.example.popayan_noc.EventosProximosActivity) {
+        ((com.example.popayan_noc.EventosProximosActivity) context).mostrarComentarFragment(eventId);
+    } else if (context instanceof androidx.fragment.app.FragmentActivity) {
+        // Fallback por si se usa en otro flujo
+        androidx.fragment.app.FragmentActivity activity = (androidx.fragment.app.FragmentActivity) context;
+        androidx.fragment.app.FragmentManager fm = activity.getSupportFragmentManager();
+        androidx.fragment.app.Fragment fragment = new com.example.popayan_noc.WriteReviewFragment();
+        android.os.Bundle args = new android.os.Bundle();
+        args.putInt("eventoid", eventId);
+        fragment.setArguments(args);
+        fm.beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit();
+    } else {
+        android.widget.Toast.makeText(context, "No se pudo abrir el formulario de comentario", android.widget.Toast.LENGTH_SHORT).show();
+    }
+});
 
         // --- Botón Reservar ---
         holder.btnReservar.setOnClickListener(v -> {

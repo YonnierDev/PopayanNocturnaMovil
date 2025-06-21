@@ -135,4 +135,30 @@ public class EventosProximosActivity extends AppCompatActivity {
         }
         return evento;
     }
+
+    // --- Métodos para el flujo de comentar ---
+    public void mostrarComentarFragment(int eventId) {
+        findViewById(R.id.rvEventosProximos).setVisibility(android.view.View.GONE);
+        findViewById(R.id.fragment_container).setVisibility(android.view.View.VISIBLE);
+        com.example.popayan_noc.WriteReviewFragment fragment = new com.example.popayan_noc.WriteReviewFragment();
+        android.os.Bundle args = new android.os.Bundle();
+        args.putInt("eventoid", eventId);
+        fragment.setArguments(args);
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
+            .commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        android.widget.FrameLayout fragmentContainer = findViewById(R.id.fragment_container);
+        if (fragmentContainer.getVisibility() == android.view.View.VISIBLE) {
+            fragmentContainer.setVisibility(android.view.View.GONE);
+            findViewById(R.id.rvEventosProximos).setVisibility(android.view.View.VISIBLE);
+        } else {
+            super.onBackPressed();
+        }
+    }
 }
