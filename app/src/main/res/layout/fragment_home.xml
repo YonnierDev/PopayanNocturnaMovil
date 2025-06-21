@@ -52,6 +52,10 @@
             android:visibility="gone" />
 
         <!-- Carrusel de Lugares Destacados -->
+        <include
+            layout="@layout/shimmer_featured_places"
+            android:id="@+id/shimmerFeaturedPlaces" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFeaturedPlaces"
             android:layout_width="match_parent"

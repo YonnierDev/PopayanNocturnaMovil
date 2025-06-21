@@ -23,6 +23,17 @@
         android:background="@color/gray"
         android:layout_marginBottom="8dp"/>
 
+    <EditText
+        android:id="@+id/etBuscarEvento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Buscar evento..."
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:padding="8dp"
+        android:background="@drawable/rounded_edittext_bg"
+        android:layout_marginBottom="8dp"
+        android:inputType="text"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvEventosProximos"
         android:layout_width="match_parent"

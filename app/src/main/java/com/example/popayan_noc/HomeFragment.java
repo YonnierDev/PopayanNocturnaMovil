@@ -46,6 +46,7 @@ public class HomeFragment extends Fragment {
     // El mapa se mostrará solo en un diálogo al pulsar el FAB
 
     private RecyclerView rvFeaturedPlaces;
+private View shimmerFeaturedPlaces; // Layout shimmer
     private RecyclerView rvEvents;
     private EventAdapter eventAdapter;
     private List<org.json.JSONArray> eventList = new ArrayList<>();
@@ -62,10 +63,13 @@ public class HomeFragment extends Fragment {
         // queue is initialized before cargarEventos if still needed, or can be initialized in onCreateView if cargarEventos is called from here
         if (queue == null) queue = Volley.newRequestQueue(requireContext()); // Ensure queue is initialized for cargarEventos
         rvFeaturedPlaces = view.findViewById(R.id.rvFeaturedPlaces);
+shimmerFeaturedPlaces = view.findViewById(R.id.shimmerFeaturedPlaces); // Nuevo layout shimmer
         // Asegura el layout horizontal para el carrusel
         if (rvFeaturedPlaces != null) {
             rvFeaturedPlaces.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            rvFeaturedPlaces.setVisibility(View.GONE); // Oculta el RecyclerView al inicio
         }
+        if (shimmerFeaturedPlaces != null) shimmerFeaturedPlaces.setVisibility(View.VISIBLE); // Muestra shimmer al inicio
         rvEvents = view.findViewById(R.id.rvEvents);
         // Apartado de Eventos
         rvEvents.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -122,7 +126,9 @@ public class HomeFragment extends Fragment {
             public void onResponse(Call<List<Lugar>> call, Response<List<Lugar>> response) {
                 if (!isAdded() || getContext() == null) return; // Fragment not attached or context is null
 
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                if (shimmerFeaturedPlaces != null) shimmerFeaturedPlaces.setVisibility(View.GONE);
+                    if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.VISIBLE);
+                    if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     List<Lugar> lugares = response.body();
                     // Asegúrate que PlaceAdapter ahora acepta List<Lugar>
                     PlaceAdapter placeAdapter = new PlaceAdapter(getContext(), lugares); 
@@ -134,7 +140,9 @@ public class HomeFragment extends Fragment {
                     if (tvNoLugares != null) tvNoLugares.setVisibility(View.GONE);
                     if (tvLugares != null) tvLugares.setText(String.valueOf(lugares.size()));
                 } else {
-                    android.util.Log.w("HomeFragment", "No hay lugares disponibles o error en la respuesta.");
+                    if (shimmerFeaturedPlaces != null) shimmerFeaturedPlaces.setVisibility(View.GONE);
+                        if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
+                        android.util.Log.w("HomeFragment", "No hay lugares disponibles o error en la respuesta.");
                     if (getContext() != null) Toast.makeText(getContext(), "No hay lugares destacados disponibles.", Toast.LENGTH_LONG).show();
                     if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
                     if (imgBannerLugares != null) imgBannerLugares.setVisibility(View.VISIBLE);
@@ -147,7 +155,9 @@ public class HomeFragment extends Fragment {
             public void onFailure(Call<List<Lugar>> call, Throwable t) {
                 if (!isAdded() || getContext() == null) return; // Fragment not attached or context is null
 
-                android.util.Log.e("HomeFragment", "Error cargando lugares: " + t.getMessage());
+                if (shimmerFeaturedPlaces != null) shimmerFeaturedPlaces.setVisibility(View.GONE);
+                    if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
+                    android.util.Log.e("HomeFragment", "Error cargando lugares: " + t.getMessage());
                 if (getContext() != null) Toast.makeText(getContext(), "Error cargando lugares: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 if (rvFeaturedPlaces != null) rvFeaturedPlaces.setVisibility(View.GONE);
                 if (imgBannerLugares != null) imgBannerLugares.setVisibility(View.VISIBLE);

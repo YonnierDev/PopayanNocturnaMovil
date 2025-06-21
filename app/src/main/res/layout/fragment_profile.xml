@@ -1,60 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/black"
-    android:padding="16dp">
+    android:background="@color/background"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/ivProfilePhoto"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/ic_person"
-        android:background="@drawable/circle_bg"
-        android:padding="8dp"/>
-
-    <TextView
-        android:id="@+id/tvProfileName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nombre Usuario"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:paddingTop="8dp"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp">
 
-    <TextView
-        android:id="@+id/tvProfileEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="email@correo.com"
-        android:textColor="@color/gray"
-        android:textSize="14sp"
-        android:gravity="center"
-        android:paddingBottom="16dp"/>
+        <!-- Foto de perfil con transición -->
+        <ImageView
+            android:id="@+id/ivProfilePhoto"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
+            android:src="@drawable/ic_person"
+            android:background="@drawable/circle_bg"
+            android:transitionName="profile_photo"
+            android:elevation="4dp"
+            android:scaleType="centerCrop"
+            android:layout_marginBottom="18dp"
+            android:contentDescription="Foto de perfil"/>
 
-    <Button
-        android:id="@+id/btnEditProfile"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Editar perfil"
-        android:layout_marginBottom="8dp"/>
+        <!-- Nombre -->
+        <TextView
+            android:id="@+id/tvProfileName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:textColor="@color/primaryText"
+            android:textSize="22sp"
+            android:gravity="center"
+            android:layout_marginBottom="4dp" />
 
-    <Button
-        android:id="@+id/btnFavorites"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ver lugares favoritos"
-        android:layout_marginBottom="8dp"/>
+        <!-- Correo -->
+        <TextView
+            android:id="@+id/tvProfileEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#B0B6C3"
+            android:textSize="15sp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
 
-    <Button
-        android:id="@+id/btnLogout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cerrar sesión"
-        android:layout_marginBottom="16dp"/>
+        <!-- Botones principales -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="18dp">
 
-</LinearLayout>
+            <Button
+                android:id="@+id/btnEditProfile"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Editar perfil"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/primary"
+                android:textColor="@color/white"
+                android:stateListAnimator="@anim/button_elevation_anim"/>
+
+            <Button
+                android:id="@+id/btnFavorites"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mis favoritos"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/secondary"
+                android:textColor="@color/white"
+                android:stateListAnimator="@anim/button_elevation_anim"/>
+
+            <Button
+                android:id="@+id/btnComments"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mis comentarios"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/tertiary"
+                android:textColor="@color/white"
+                android:stateListAnimator="@anim/button_elevation_anim"/>
+        </LinearLayout>
+
+        <!-- Botón cerrar sesión -->
+        <Button
+            android:id="@+id/btnLogout"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cerrar sesión"
+            android:backgroundTint="@color/red"
+            android:textColor="@color/primaryText"
+            android:stateListAnimator="@anim/button_elevation_anim"
+            android:layout_marginTop="18dp"/>
+    </LinearLayout>
+</ScrollView>

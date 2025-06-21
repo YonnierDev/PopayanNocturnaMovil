@@ -29,6 +29,11 @@ public class FeaturedPlaceAdapter extends RecyclerView.Adapter<FeaturedPlaceAdap
 
     @Override
     public void onBindViewHolder(@NonNull PlaceViewHolder holder, int position) {
+        // Animación de entrada: slide-in + fade-in
+        if (holder.itemView.getAnimation() == null) {
+            android.view.animation.Animation anim = android.view.animation.AnimationUtils.loadAnimation(context, R.anim.slide_in_bottom);
+            holder.itemView.startAnimation(anim);
+        }
         Place place = places.get(position);
         holder.tvPlaceName.setText(place.nombre);
     }
