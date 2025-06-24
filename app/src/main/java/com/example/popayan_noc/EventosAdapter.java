@@ -132,7 +132,7 @@ public class EventosAdapter extends RecyclerView.Adapter<EventosAdapter.EventoVi
         args.putInt("eventoid", eventId);
         fragment.setArguments(args);
         fm.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
+            .replace(R.id.main, fragment)
             .addToBackStack(null)
             .commit();
     } else {
