@@ -31,39 +31,9 @@ public class ReviewApi {
         queue.add(request);
     }
 
-    /**
-     * Envía un comentario para un evento usando el endpoint actualizado.
-     * @param context Contexto de la app
-     * @param token Token JWT del usuario
-     * @param eventoid ID del evento
-     * @param contenido Contenido del comentario (máx 500 chars)
-     * @param listener Listener para respuesta exitosa
-     * @param errorListener Listener para errores
-     */
-    public static void postComentario(Context context, String token, int eventoid, String contenido, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
-        // Validación local de longitud
-        if (contenido == null || contenido.trim().isEmpty()) {
-            if (errorListener != null) {
-                errorListener.onErrorResponse(new VolleyError("El contenido del comentario es requerido"));
-            }
-            return;
-        }
-        if (contenido.length() > 500) {
-            if (errorListener != null) {
-                errorListener.onErrorResponse(new VolleyError("El comentario no puede superar los 500 caracteres"));
-            }
-            return;
-        }
+    public static void postReview(Context context, String token, JSONObject data, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener) {
         String url = BASE_URL + "/comentario";
         RequestQueue queue = Volley.newRequestQueue(context);
-        JSONObject data = new JSONObject();
-        try {
-            data.put("eventoid", eventoid);
-            data.put("contenido", contenido);
-        } catch (Exception e) {
-            if (errorListener != null) errorListener.onErrorResponse(new VolleyError("Error al preparar datos: " + e.getMessage()));
-            return;
-        }
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, data, listener, errorListener) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

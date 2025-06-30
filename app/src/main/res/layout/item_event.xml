@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="260dp"
     android:layout_height="320dp"
     android:layout_marginBottom="18dp"
-    android:layout_marginTop="10dp"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
-    app:cardCornerRadius="28dp"
-    app:cardElevation="14dp"
-    app:cardBackgroundColor="@color/primaryDark"
-    app:strokeColor="@color/secondary"
-    app:strokeWidth="2dp">
-
+    card_view:cardCornerRadius="22dp"
+    card_view:cardElevation="10dp"
+    card_view:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,7 +35,7 @@
                 android:layout_weight="1"
                 android:text="Nombre del evento"
                 android:textSize="20sp"
-                android:textColor="@color/white"
+                android:textColor="#222"
                 android:textStyle="bold"
                 android:maxLines="2"
                 android:ellipsize="end"/>
@@ -67,13 +61,12 @@
                 android:text="Fecha"
                 android:textSize="16sp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/secondary"
+                android:textColor="#3F51B5"
                 android:textStyle="bold"/>
         </LinearLayout>
 
         <Button
             android:id="@+id/btnCalificar"
-            android:foreground="@drawable/ripple_primary"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:text="Calificar"
@@ -89,7 +82,6 @@
 
         <Button
             android:id="@+id/btnReservar"
-            android:foreground="@drawable/ripple_primary"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:text="Reservar"
@@ -123,7 +115,6 @@
 
         <Button
             android:id="@+id/btnComentar"
-            android:foreground="@drawable/ripple_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Comentar"
@@ -139,4 +130,4 @@
             android:padding="8dp"
             />
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

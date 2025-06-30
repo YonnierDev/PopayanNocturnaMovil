@@ -77,33 +77,19 @@ public class EventReviewsFragment extends Fragment {
         swipeRefresh.setOnRefreshListener(this::loadEventReviews);
         
         // Configurar botones
+        fabWriteComment.setOnClickListener(v -> showWriteCommentDialog());
         btnLoadMore.setOnClickListener(v -> loadMoreComments());
+        // Configurar FAB
         fabWriteComment.setOnClickListener(v -> {
-    // Obtener el id del evento actual. Ajusta esto según cómo manejes el contexto del evento.
-    int eventoid = -1;
-    if (getArguments() != null && getArguments().containsKey("eventoid")) {
-        eventoid = getArguments().getInt("eventoid");
-    } else if (!allComments.isEmpty()) {
-        // Si tienes comentarios cargados, toma el primer eventoid asociado
-        try {
-            eventoid = allComments.get(0).getInt("eventoid");
-        } catch (Exception ignored) {}
-    }
-    if (eventoid == -1) {
-        Toast.makeText(getContext(), "No se pudo determinar el evento para comentar", Toast.LENGTH_SHORT).show();
-        return;
-    }
-    // Reemplaza el fragmento actual por WriteReviewFragment igual que en Eventos Próximos
-    androidx.fragment.app.Fragment fragment = new com.example.popayan_noc.WriteReviewFragment();
-    android.os.Bundle args = new android.os.Bundle();
-    args.putInt("eventoid", eventoid);
-    fragment.setArguments(args);
-    requireActivity().getSupportFragmentManager()
-        .beginTransaction()
-        .replace(R.id.fragment_container, fragment)
-        .addToBackStack(null)
-        .commit();
-});
+            // Abrir diálogo para escribir comentario
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_comment, null);
+            EditText etComment = dialogView.findViewById(R.id.etComment);
+            new AlertDialog.Builder(getContext())
+                    .setView(dialogView)
+                    .setCancelable(false)
+                    .create()
+                    .show();
+        });
 
         // Cargar datos iniciales
         loadEventReviews();

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primaryDark">#182848</color> <!-- Azul oscuro para fondo de tarjetas -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="gold">#FFD700</color>
     <color name="gray">#FF888888</color>
     <color name="gray_300">#E0E0E0</color>
+    <color name="primary">#1976D2</color>
     <color name="red">#F44336</color>
     <color name="dark_blue">#182848</color>
     <color name="dots_indicator_dot_color">#CCCCCC</color>
@@ -13,10 +13,4 @@
     <color name="primaryColor">#1976D2</color> <!-- Azul principal, igual que 'primary' existente -->
     <color name="primaryTextColor">#23233A</color> <!-- Texto principal, oscuro -->
     <color name="secondaryTextColor">#888888</color> <!-- Texto secundario, gris -->
-    <color name="background">#182848</color> <!-- Azul noche -->
-    <color name="primaryText">#FFFFFF</color> <!-- Blanco para texto principal -->
-    <color name="secondaryText">#B0B6C3</color> <!-- Gris claro para texto secundario -->
-    <color name="primary">#3F51B5</color> <!-- Azul medio vibrante -->
-    <color name="secondary">#FFD700</color> <!-- Amarillo dorado para acentos y botones -->
-    <color name="tertiary">#23233A</color> <!-- Azul oscuro alternativo para cards o fondos secundarios -->
 </resources>

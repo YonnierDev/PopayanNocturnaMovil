@@ -10,11 +10,32 @@
         android:id="@+id/tvWriteReviewTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Escribe tu comentario"
+        android:text="Escribe tu reseña"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
         android:gravity="center"
+        android:paddingBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvWriteReviewTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reservar/Reseñar"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <RatingBar
+        android:id="@+id/rbRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1"
+        android:layout_gravity="center_horizontal"
         android:paddingBottom="16dp"/>
 
     <EditText
