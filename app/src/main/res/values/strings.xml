@@ -1,4 +1,19 @@
 <resources>
-    <string name="app_name">Popayan_Noc</string>
+    <string name="app_name">Popayán Nocturna</string>
     <string name="app_logo">Popayán Nocturna</string>
+
+
+    <string name="navigation_drawer_open">Abrir menú de navegación</string>
+    <string name="navigation_drawer_close">Cerrar menú de navegación</string>
+    <string name="nav_header_title">Invitado</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Encabezado de navegación</string>
+    <string name="menu_gallery">Colaborador</string>
+    <string name="menu_slideshow">Diapositivas</string>
+    <string name="menu_share">Compartir</string>
+    <string name="menu_send">Enviar</string>
+    <string name="category_icon_desc">name</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

@@ -1,4 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryTextColor</item>
+        <item name="colorAccent">@color/secondaryTextColor</item>
+
+
+    </style>
+    <style name="CustomRatingBar" parent="Widget.AppCompat.RatingBar">
+        <item name="colorControlActivated">@color/amber</item> <!-- Color de estrellas llenas -->
+        <item name="colorControlNormal">@color/secondaryTextColor</item> <!-- Color de estrellas vacías -->
+    </style>
 </resources>

@@ -2,8 +2,6 @@
 
 **Popayán Nocturna** es una aplicación móvil diseñada para residentes y visitantes de **Popayán, Colombia**, que desean explorar y disfrutar de la **vida nocturna** de la ciudad. Proporciona información actualizada sobre eventos, lugares de interés, restaurantes, bares y actividades culturales nocturnas.
 
-
-
 ---
 
 ## ✨ Características
