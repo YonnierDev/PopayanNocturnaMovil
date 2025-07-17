@@ -13,7 +13,7 @@
         android:text="Califica este evento"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:textColor="@color/black"
+        android:textColor="@color/primary"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="12dp"/>
 
@@ -25,8 +25,7 @@
         android:stepSize="1"
         android:rating="0"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"
-        android:theme="@style/CustomRatingBar"/>
+        android:layout_marginBottom="16dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -39,8 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancelar"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/black"/>
+            android:textColor="@color/gray"/>
 
         <Button
             android:id="@+id/btnSendRating"
@@ -49,6 +47,6 @@
             android:text="Enviar"
             android:layout_marginLeft="16dp"
             android:textColor="@color/white"
-            android:backgroundTint="@color/amber"/>
+            android:backgroundTint="@color/primary"/>
     </LinearLayout>
 </LinearLayout>

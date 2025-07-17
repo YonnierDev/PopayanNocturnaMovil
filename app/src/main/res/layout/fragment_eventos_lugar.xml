@@ -3,9 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@drawable/bg_gradient_dark"
-    >
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/tvTitulo"
@@ -23,4 +21,3 @@
         android:padding="8dp"/>
 
 </LinearLayout>
-
